@@ -1,0 +1,51 @@
+services:
+  # Backend Service
+  - type: web
+    name: bareprop-backend
+    env: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node src/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: bareprop-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ROBOFOREX_API_KEY
+        sync: false
+      - key: ROBOFOREX_ACCOUNT_ID
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHAT_ID
+        sync: false
+      - key: ENCRYPTION_KEY
+        generateValue: true
+
+  # Frontend Service
+  - type: static
+    name: bareprop-frontend
+    env: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: bareprop-backend
+          property: url
+
+databases:
+  - name: bareprop-db
+    databaseName: bareprop
+    user: bareprop_user
+    plan: free

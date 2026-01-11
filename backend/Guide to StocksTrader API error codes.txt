@@ -1,0 +1,66 @@
+Guide to StocksTrader API error codes
+Modified on Tue, 22 Jul at 9:43 AM
+
+The StocksTrader API enables interaction with the trading platform, but errors may occur if requests are not properly formed. This guide explains the most common error codes — 400 Bad Request and 401 Unauthorized — and offers steps to resolve them.
+
+This guide will help you quickly identify and resolve common StocksTrader API errors.
+
+Common error codes
+
+1. 400 — Bad request
+
+
+What it means: The request contains an error due to an incorrect URL, missing or invalid parameters, or incorrect data format.
+
+Examples:
+
+Using /api/v1/logout/account instead of the correct /api/v1/logout
+Missing required fields such as ticker, volume, side, or type in a POST request to /api/v1/accounts/{account_id}/orders
+Providing an invalid account_id or ticker in requests such as /api/v1/accounts/{account_id}/instruments/{ticker}
+How to fix:
+
+Check the URL: Ensure it matches the API documentation. For example, use /api/v1/logout instead of /api/v1/logout/account.
+Check the parameters: Make sure all required parameters are included and valid. For instance, ticker, volume, side, and type must be present in a POST request to /api/v1/accounts/{account_id}/orders.
+Check the data format: Ensure the request body follows the expected format.
+Review the response: Look at the msg field in the error response for hints about what went wrong.
+2. 401 — Unauthorized
+
+
+What it means: The request is missing a valid authorization token or the token is invalid.
+
+Examples:
+
+Accessing /api/v1/accounts without a Bearer token
+Using an expired or invalid token
+How to fix:
+
+Include a token: Add the Authorization header to your request.
+Check the token: If the token is expired, generate a new one via the StocksTrader web terminal.
+Check permissions: Make sure the token belongs to an account that has access to the requested resource.
+General recommendations
+Refer to the documentation: Always consult the API specification for correct endpoints, parameters, and data formats.
+Log requests and responses: Save the full request and response (including the msg field) for error analysis.
+Test beforehand: Use tools like Postman to verify your requests before deploying them.
+Contact support: If the issue persists, contact technical support and provide the request details (URL, body, and response).
+Example: Fixing a 400 error
+
+
+Issue: You receive a 400 error when sending a POST request to /api/v1/logout/account.
+
+Solution:
+
+Check the documentation: the correct endpoint is /api/v1/logout.
+Update the URL to https://api.stockstrader.com/api/v1/logout.
+Make sure it's a POST request with the proper Authorization header.
+Retry the request.
+Example: Fixing a 401 error
+
+
+Issue: You receive a 401 error when sending a GET request to /api/v1/accounts to retrieve your account list.
+
+Solution:
+
+Check the headers: Ensure the Authorization header is present.
+If missing, add it. If the token is expired, generate a new one via the StocksTrader web terminal.
+Ensure the token belongs to an account with access to /api/v1/accounts.
+Retry the request with the valid token.

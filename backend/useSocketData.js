@@ -1,0 +1,1 @@
+// This file was moved to frontend/src/hooks/useSocketData.js
