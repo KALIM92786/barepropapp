@@ -50,9 +50,9 @@ git push -u origin main
 
 2. **Create PostgreSQL Database**
    - Click "New +" → "PostgreSQL"
-   - Name: `bareprop-db`
-   - Database: `bareprop`
-   - User: `postgres`
+   - Name: `barepropdb`
+   - Database: `barepropdb`
+   - User: `barepropdbuser`
    - Click "Create"
 
 3. **Create Backend Service**
@@ -67,11 +67,11 @@ git push -u origin main
    ```
    PORT=5000
    NODE_ENV=production
-   DB_HOST=<from-database-service>
+   DB_HOST=dpg-d5i7up56ubrc738ebjd0-a
    DB_PORT=5432
-   DB_USER=postgres
-   DB_PASSWORD=<from-database-service>
-   DB_DATABASE=bareprop
+   DB_USER=barepropdbuser
+   DB_PASSWORD=fqMLwJHJ2KwblPTM3YDIwKctJaYsVseT
+   DB_DATABASE=barepropdb
    JWT_SECRET=bareprop_secure_jwt_secret_key_2024_production
    FRONTEND_URL=https://bareprop-frontend.onrender.com
    RSTOCK_BASE_URL=https://api.stockstrader.com/api/v1
@@ -112,7 +112,7 @@ After services are deployed:
 
 ```bash
 # Connect to Render PostgreSQL
-psql -h <your-db-host> -U postgres -d bareprop -f backend/db/schema.sql
+PGPASSWORD=fqMLwJHJ2KwblPTM3YDIwKctJaYsVseT psql -h dpg-d5i7up56ubrc738ebjd0-a.oregon-postgres.render.com -U barepropdbuser barepropdb -f backend/db/schema.sql
 ```
 
 Or use Render Shell:

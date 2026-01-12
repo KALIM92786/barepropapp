@@ -66,11 +66,11 @@ git push -u origin main
    ```env
    PORT=5000
    NODE_ENV=production
-   DB_HOST=<your-database-host>
+   DB_HOST=dpg-d5i7up56ubrc738ebjd0-a
    DB_PORT=5432
-   DB_USER=postgres
-   DB_PASSWORD=<your-database-password>
-   DB_DATABASE=bareprop
+   DB_USER=barepropdbuser
+   DB_PASSWORD=fqMLwJHJ2KwblPTM3YDIwKctJaYsVseT
+   DB_DATABASE=barepropdb
    JWT_SECRET=<generate-a-strong-secret>
    FRONTEND_URL=https://bareprop-frontend.onrender.com
    RSTOCK_BASE_URL=https://api.stockstrader.com/api/v1
@@ -147,7 +147,7 @@ After deploying, you need to initialize the database schema:
 3. Use psql to connect and run schema:
 
 ```bash
-psql -h <your-db-host> -U postgres -d bareprop -f backend/db/schema.sql
+PGPASSWORD=fqMLwJHJ2KwblPTM3YDIwKctJaYsVseT psql -h dpg-d5i7up56ubrc738ebjd0-a.oregon-postgres.render.com -U barepropdbuser barepropdb -f backend/db/schema.sql
 ```
 
 ### Option 2: Add Setup Script
