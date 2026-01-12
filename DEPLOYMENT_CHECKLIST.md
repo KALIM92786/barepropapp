@@ -200,7 +200,7 @@ Before going to production:
 **Solution**: 
 - Check database is running
 - **Verify Environment Variables**: Ensure `DB_HOST` is set to the internal address (e.g., `dpg-d5i7up56ubrc738ebjd0-a`) in Render Dashboard.
-- **Fix Localhost Error**: The error `ECONNREFUSED 127.0.0.1:5432` confirms that `DB_HOST` is missing or incorrect in Render Environment Variables.
+- **Fix Localhost Error**: The error `ECONNREFUSED 127.0.0.1:5432` confirms that `DB_HOST` is MISSING in Render Dashboard. You must manually add the environment variables.
 - Ensure services are in same region
 
 ### Frontend Can't Connect to Backend

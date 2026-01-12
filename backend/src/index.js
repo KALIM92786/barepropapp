@@ -6,7 +6,7 @@ const cors = require('cors');
 const TelegramBot = require('node-telegram-bot-api');
 
 // Internal Imports
-const pool = require('./db');
+const pool = require('./config/db');
 const SyncService = require('./services/syncService');
 const authRoutes = require('./routes/authRoutes');
 const { authenticateToken } = require('./middleware/authMiddleware');

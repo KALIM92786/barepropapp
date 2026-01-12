@@ -65,6 +65,7 @@ git push -u origin main
    
    ```env
    PORT=5000
+   # ... (See backend/RENDER_ENV_VARS.txt for full list)
    NODE_ENV=production
    DB_HOST=dpg-d5i7up56ubrc738ebjd0-a
    DB_PORT=5432
@@ -81,6 +82,7 @@ git push -u origin main
    ```
 
    **Important**:
+   - **ACTION REQUIRED**: You must MANUALLY add these variables in the Render Dashboard > Environment tab. Pushing the file to GitHub is NOT enough.
    - Get `DB_HOST` and `DB_PASSWORD` from your PostgreSQL service
    - Generate a strong `JWT_SECRET` (minimum 32 characters)
    - The `FRONTEND_URL` will be updated once frontend is deployed
@@ -211,7 +213,7 @@ Then run it after deployment via Render Shell.
 **Solutions**:
 1. Check database is running on Render
 2. Verify DB_HOST and DB_PASSWORD are correct
-3. **Fix Localhost Error**: If logs show `ECONNREFUSED 127.0.0.1:5432`, it means `DB_HOST` is NOT set in Render Environment Variables. You must add it manually.
+3. **Fix Localhost Error**: If logs show `ECONNREFUSED 127.0.0.1:5432`, it means `DB_HOST` is MISSING in the Render Dashboard. The app is defaulting to localhost. Go to the Environment tab and add the variables.
 4. Ensure Render services are in the same region
 5. Check Render logs for error messages
 
