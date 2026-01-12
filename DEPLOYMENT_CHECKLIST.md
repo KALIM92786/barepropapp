@@ -214,7 +214,7 @@ Before going to production:
 ### Build Fails (Import Error)
 
 **Error**: `"default" is not exported`
-**Solution**: Change import to `{ Component }` or add `export default` to the component file.
+**Solution**: Add `export default ComponentName;` to the end of your component file.
 
 ### WebSocket Not Working
 
