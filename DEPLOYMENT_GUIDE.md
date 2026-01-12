@@ -63,23 +63,9 @@ git push -u origin main
 4. **Add Environment Variables**
    In the Environment section, add these variables:
    
-   ```env
-   PORT=5000
-   # ... (See backend/RENDER_ENV_VARS.txt for full list)
-   NODE_ENV=production
-   DB_HOST=dpg-d5i7up56ubrc738ebjd0-a
-   DB_PORT=5432
-   DB_USER=barepropdbuser
-   DB_PASSWORD=fqMLwJHJ2KwblPTM3YDIwKctJaYsVseT
-   DB_DATABASE=barepropdb
-   JWT_SECRET=<generate-a-strong-secret>
-   FRONTEND_URL=https://bareprop-frontend.onrender.com
-   RSTOCK_BASE_URL=https://api.stockstrader.com/api/v1
-   STOCKSTRADER_TOKEN=2674108bf4576637e87b6f882b634176b9ccf6dbd65f322d7a1d1d0d899a74c8
-   STOCKSTRADER_ACCOUNT_ID=93172055
-   TEST_MODE=false
-   TELEGRAM_BOT_TOKEN=<your-telegram-token>
-   ```
+   **Copy the contents of `backend/RENDER_ENV_VARS.txt`**
+   
+   This file contains all the necessary keys and values. You can copy them directly into the Render "Environment Variables" editor (use the "Secret File" or "Advanced" view to paste multiple lines at once).
 
    **Important**:
    - **ACTION REQUIRED**: You must MANUALLY add these variables in the Render Dashboard > Environment tab. Pushing the file to GitHub is NOT enough.

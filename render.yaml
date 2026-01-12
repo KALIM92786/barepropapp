@@ -1,48 +1,34 @@
 services:
-  # PostgreSQL Database Service
-  - type: pserv
-    name: bareprop-db
-    env: docker
-    plan: free
-    envVars:
-      - key: POSTGRES_USER
-        value: postgres
-      - key: POSTGRES_PASSWORD
-        value: bareprop_secure_password_2024
-      - key: POSTGRES_DB
-        value: bareprop
-
-  # Backend API Service
   - type: web
     name: bareprop-backend
     env: node
     plan: free
-    buildCommand: cd backend && npm install
-    startCommand: cd backend && npm start
+    buildCommand: npm install
+    startCommand: npm start
+    rootDir: backend
     envVars:
       - key: PORT
         value: 5000
       - key: NODE_ENV
         value: production
+      - key: DB_DATABASE
+        value: barepropdb
+      - key: DB_PORT
+        value: 5432
+      - key: TEST_MODE
+        value: false
       - key: DB_HOST
-        fromService:
-          type: pserv
+        fromDatabase:
           name: bareprop-db
           property: host
-      - key: DB_PORT
-        fromService:
-          type: pserv
-          name: bareprop-db
-          property: port
-      - key: DB_USER
-        value: postgres
       - key: DB_PASSWORD
-        fromService:
-          type: pserv
+        fromDatabase:
           name: bareprop-db
-          envVarKey: POSTGRES_PASSWORD
-      - key: DB_DATABASE
-        value: bareprop
+          property: password
+      - key: DB_USER
+        fromDatabase:
+          name: bareprop-db
+          property: user
       - key: JWT_SECRET
         generateValue: true
       - key: FRONTEND_URL
@@ -53,22 +39,27 @@ services:
         sync: false
       - key: STOCKSTRADER_ACCOUNT_ID
         sync: false
-      - key: TEST_MODE
-        value: false
-      - key: TELEGRAM_BOT_TOKEN
-        sync: false
 
-  # Frontend Service
   - type: web
     name: bareprop-frontend
     env: static
     plan: free
-    buildCommand: cd frontend && npm install && npm run build
-    staticPublishPath: ./frontend/dist
-    envVars:
-      - key: VITE_API_URL
-        value: https://bareprop-backend.onrender.com
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
     routes:
       - type: rewrite
         source: /*
         destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: bareprop-backend
+          property: url
+
+databases:
+  - name: bareprop-db
+    plan: free
+    databaseName: barepropdb
+    user: barepropdbuser

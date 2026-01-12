@@ -131,8 +131,8 @@ Create a user to login:
 node -e "console.log(require('bcryptjs').hashSync('YourPassword123', 10))"
 
 -- Insert into database (replace hash)
-INSERT INTO users (username, password_hash, role) 
-VALUES ('admin', '$2a$10$your_hashed_password_here', 'admin');
+INSERT INTO users (email, password_hash, role) 
+VALUES ('admin@bareprop.com', '$2a$10$your_hashed_password_here', 'admin');
 ```
 
 ### Step 5: Add Trading Account

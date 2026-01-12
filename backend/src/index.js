@@ -3,80 +3,57 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
-const TelegramBot = require('node-telegram-bot-api');
 
-// Internal Imports
-const pool = require('./config/db');
-const SyncService = require('./services/syncService');
+// Import Routes
 const authRoutes = require('./routes/authRoutes');
-const { authenticateToken } = require('./middleware/authMiddleware');
+const accountRoutes = require('./routes/accountRoutes');
+const ordersRoutes = require('./routes/ordersRoutes');
+const analyticsRoutes = require('./routes/analyticsRoutes');
+
+// Import Socket Handler
+const socketHandler = require('./socket/socketHandler');
 
 const app = express();
 const server = http.createServer(app);
 
-// Production CORS Setup
-const corsOptions = {
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
-    methods: ["GET", "POST"],
-    credentials: true
-};
-
-const io = new Server(server, {
-    cors: corsOptions
-});
-
-const telegramBot = process.env.TELEGRAM_BOT_TOKEN 
-    ? new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: false }) 
-    : null;
-
-const syncService = new SyncService(io, telegramBot);
-
-app.use(cors(corsOptions));
+// Middleware
+app.use(cors());
 app.use(express.json());
+
+// Socket.IO Setup
+const io = new Server(server, {
+  cors: {
+    origin: process.env.FRONTEND_URL || '*',
+    methods: ['GET', 'POST']
+  }
+});
+
+// Initialize Socket Logic
+const socketHelpers = socketHandler(io);
+
+// Middleware to pass io to routes
+app.use((req, res, next) => {
+  req.io = io;
+  req.socketHelpers = socketHelpers;
+  next();
+});
+
+// Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/accounts', accountRoutes);
+app.use('/api/orders', ordersRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
-// --- Health Check ---
+// Health Check
 app.get('/health', (req, res) => {
-    res.json({ status: 'ok', timestamp: new Date(), uptime: process.uptime() });
+  res.json({ status: 'ok', timestamp: new Date(), uptime: process.uptime() });
 });
 
-// --- API Endpoints ---
-app.get('/api/analytics/:accountId', authenticateToken, async (req, res) => {
-    try {
-        const { accountId } = req.params;
-        const result = await pool.query(`
-            SELECT created_at as timestamp, equity, balance 
-            FROM equity_snapshots 
-            WHERE account_id = $1 
-            ORDER BY created_at DESC LIMIT 500
-        `, [accountId]);
-        res.json(result.rows.reverse());
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
+app.get('/', (req, res) => {
+  res.send('BareProp Backend is Running');
 });
 
-app.get('/api/trades/:accountId', authenticateToken, async (req, res) => {
-    try {
-        const { accountId } = req.params;
-        const result = await pool.query(`
-            SELECT * FROM deals WHERE account_id = $1 ORDER BY close_time DESC LIMIT 100
-        `, [accountId]);
-        res.json(result.rows);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// --- Start Server ---
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, async () => {
-    console.log(`BareProp Server running on port ${PORT}`);
-    // Initialize Sync
-    try {
-        const { rows: accounts } = await pool.query("SELECT * FROM accounts WHERE status = 'ACTIVE'");
-        if (accounts.length > 0) await syncService.init(accounts);
-    } catch (err) {
-        console.error("Startup Warning: Could not load accounts (Tables might be missing).", err.message);
-    }
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });

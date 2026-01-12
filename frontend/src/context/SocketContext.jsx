@@ -1,78 +1,78 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useState, useEffect, useContext } from 'react';
 import io from 'socket.io-client';
+import { AuthContext } from './AuthContext';
 
-const SocketContext = createContext();
+export const SocketContext = createContext();
 
-export const useSocket = () => useContext(SocketContext);
+export const SocketProvider = ({ children }) => {
+  const { token } = useContext(AuthContext);
+  const [socket, setSocket] = useState(null);
+  const [isConnected, setIsConnected] = useState(false);
+  const [currentAccountId, setCurrentAccountId] = useState(null);
+  
+  // Store the latest data received from the backend
+  const [accountState, setAccountState] = useState({
+    balance: 0,
+    equity: 0,
+    margin: 0,
+    freeMargin: 0,
+    positions: []
+  });
 
-export const SocketProvider = ({ children, accountId }) => {
-    const [socket, setSocket] = useState(null);
-    const [isConnected, setIsConnected] = useState(false);
-    const [liveData, setLiveData] = useState({ equity: 0, balance: 0, openOrders: [] });
-    const [chartData, setChartData] = useState([]);
-    const [history, setHistory] = useState([]);
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
-    useEffect(() => {
-        const newSocket = io();
-        setSocket(newSocket);
+  useEffect(() => {
+    if (!token) return;
 
-        const token = localStorage.getItem('token');
-        const headers = { 'Authorization': `Bearer ${token}` };
+    // Initialize Socket connection
+    const newSocket = io(API_URL, {
+      auth: { token },
+      transports: ['websocket'], // Force websocket to avoid polling issues
+    });
 
-        // Initial Data Fetch
-        fetch(`/api/analytics/${accountId}`, { headers })
-            .then(res => res.json())
-            .then(data => setChartData(data))
-            .catch(err => console.error("Analytics fetch error:", err));
+    newSocket.on('connect', () => {
+      console.log('Socket connected');
+      setIsConnected(true);
+    });
 
-        fetch(`/api/trades/${accountId}`, { headers })
-            .then(res => res.json())
-            .then(data => setHistory(data))
-            .catch(err => console.error("History fetch error:", err));
+    newSocket.on('disconnect', () => {
+      console.log('Socket disconnected');
+      setIsConnected(false);
+    });
 
-        // Socket Handlers
-        const onConnect = () => setIsConnected(true);
-        const onDisconnect = () => setIsConnected(false);
-        
-        newSocket.on('connect', onConnect);
-        newSocket.on('disconnect', onDisconnect);
+    newSocket.on('error', (err) => {
+      console.error('Socket error:', err);
+    });
 
-        newSocket.emit('subscribe', accountId);
-        
-        newSocket.on('market_update', (data) => {
-            setLiveData({
-                equity: data.equity,
-                balance: data.balance,
-                openOrders: data.openOrders || []
-            });
-            
-            // Update Chart Real-time
-            setChartData(prev => {
-                const newData = [...prev, { 
-                    timestamp: new Date().toISOString(), 
-                    equity: data.equity 
-                }];
-                return newData.slice(-500); // Keep last 500 points
-            });
-        });
+    setSocket(newSocket);
 
-        return () => {
-            newSocket.off('connect', onConnect);
-            newSocket.off('disconnect', onDisconnect);
-            newSocket.off('market_update');
-            newSocket.close();
-        };
-    }, [accountId]);
+    return () => newSocket.close();
+  }, [token, API_URL]);
 
-    return (
-        <SocketContext.Provider value={{ 
-            socket, 
-            isConnected, 
-            liveData, 
-            chartData, 
-            history 
-        }}>
-            {children}
-        </SocketContext.Provider>
-    );
+  // Handle Account Subscription
+  useEffect(() => {
+    if (!socket || !currentAccountId) return;
+
+    // Subscribe to specific account updates
+    // Note: Backend logic should handle joining the room based on this emit or auth
+    socket.emit('subscribe', { accountId: currentAccountId });
+
+    const handleMarketUpdate = (data) => {
+      console.log('Market Update:', data);
+      setAccountState(data);
+    };
+
+    // Listen for dynamic event name: market_update_12345
+    socket.on(`market_update_${currentAccountId}`, handleMarketUpdate);
+
+    return () => {
+      socket.off(`market_update_${currentAccountId}`, handleMarketUpdate);
+    };
+  }, [socket, currentAccountId]);
+
+  return (
+    <SocketContext.Provider value={{ socket, isConnected, accountState, currentAccountId, setCurrentAccountId }}>
+      {children}
+    </SocketContext.Provider>
+  );
 };

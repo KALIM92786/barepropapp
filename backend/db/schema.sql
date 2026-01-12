@@ -1,22 +1,16 @@
--- Users and Roles
--- =========================================
--- BAREPROP DATABASE SCHEMA
--- =========================================
-
 BEGIN;
 
--- USERS (admin, trader, investor, signal)
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
-    email VARCHAR(255) UNIQUE,
-    password_hash TEXT,
-    role VARCHAR(50) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    role VARCHAR(50) NOT NULL DEFAULT 'user',
     created_at TIMESTAMP DEFAULT NOW()
 );
 
--- ROBOFOREX ACCOUNTS
-CREATE TABLE accounts (
+CREATE TABLE IF NOT EXISTS accounts (
     id VARCHAR(50) PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
     name VARCHAR(255),
     type VARCHAR(50),
     currency VARCHAR(10),
@@ -24,8 +18,7 @@ CREATE TABLE accounts (
     created_at TIMESTAMP DEFAULT NOW()
 );
 
--- ACCOUNT SNAPSHOTS (Equity & Margin)
-CREATE TABLE equity_snapshots (
+CREATE TABLE IF NOT EXISTS equity_snapshots (
     id SERIAL PRIMARY KEY,
     account_id VARCHAR(50) REFERENCES accounts(id),
     balance NUMERIC(18,2),
@@ -36,8 +29,7 @@ CREATE TABLE equity_snapshots (
     created_at TIMESTAMP DEFAULT NOW()
 );
 
--- OPEN & CLOSED DEALS (Positions)
-CREATE TABLE deals (
+CREATE TABLE IF NOT EXISTS deals (
     id VARCHAR(50) PRIMARY KEY,
     account_id VARCHAR(50) REFERENCES accounts(id),
     ticker VARCHAR(20) NOT NULL,
@@ -52,22 +44,21 @@ CREATE TABLE deals (
     created_at TIMESTAMP DEFAULT NOW()
 );
 
--- ACTIVE POSITIONS (Fast access)
-CREATE TABLE positions (
+CREATE TABLE IF NOT EXISTS positions (
     id SERIAL PRIMARY KEY,
-    deal_id VARCHAR(50) REFERENCES deals(id),
+    deal_id VARCHAR(50),
     account_id VARCHAR(50),
     ticker VARCHAR(20),
     side VARCHAR(10),
     volume NUMERIC(18,4),
     open_price NUMERIC(18,5),
     open_time BIGINT,
-    floating_profit NUMERIC(18,2),
+    current_price NUMERIC(18,5),
+    profit NUMERIC(18,2),
     updated_at TIMESTAMP DEFAULT NOW()
 );
 
--- ORDERS (limit, stop, history)
-CREATE TABLE orders (
+CREATE TABLE IF NOT EXISTS orders (
     id VARCHAR(50) PRIMARY KEY,
     account_id VARCHAR(50),
     ticker VARCHAR(20),
@@ -79,8 +70,7 @@ CREATE TABLE orders (
     created_at BIGINT
 );
 
--- TRADE LOG (Everything that changes)
-CREATE TABLE trade_logs (
+CREATE TABLE IF NOT EXISTS trade_logs (
     id SERIAL PRIMARY KEY,
     event_type VARCHAR(50),
     reference_id VARCHAR(50),
@@ -88,8 +78,7 @@ CREATE TABLE trade_logs (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- PRICE HISTORY (XAUUSD quotes)
-CREATE TABLE prices (
+CREATE TABLE IF NOT EXISTS prices (
     id SERIAL PRIMARY KEY,
     ticker VARCHAR(20),
     bid NUMERIC(18,5),
@@ -98,12 +87,10 @@ CREATE TABLE prices (
     timestamp BIGINT
 );
 
--- INDEXES FOR SPEED
-CREATE INDEX idx_deals_account ON deals(account_id);
-CREATE INDEX idx_deals_status ON deals(status);
-CREATE INDEX idx_equity_account ON equity_snapshots(account_id);
-CREATE INDEX idx_positions_account ON positions(account_id);
+CREATE INDEX IF NOT EXISTS idx_deals_account ON deals(account_id);
+CREATE INDEX IF NOT EXISTS idx_equity_account ON equity_snapshots(account_id);
+CREATE INDEX IF NOT EXISTS idx_positions_account ON positions(account_id);
+CREATE INDEX IF NOT EXISTS idx_prices_symbol ON prices(ticker);
 CREATE INDEX IF NOT EXISTS idx_orders_account ON orders(account_id);
-CREATE INDEX idx_prices_symbol ON prices(ticker);
 
 COMMIT;
