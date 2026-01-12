@@ -88,6 +88,7 @@ git push -u origin main
    - Build Command: `npm install && npm run build`
    - Publish Directory: `dist`
    - Environment Variable: `VITE_API_URL=https://bareprop-backend.onrender.com`
+   - **Add Rewrite Rule**: Source `/*`, Destination `/index.html`, Action `Rewrite`
 
 6. **Update Backend FRONTEND_URL**
    - After frontend is deployed, get the URL
@@ -209,6 +210,11 @@ Before going to production:
 **Solution**: 
 - Verify FRONTEND_URL matches actual frontend URL
 - Check backend CORS configuration
+
+### Build Fails (Import Error)
+
+**Error**: `"default" is not exported`
+**Solution**: Change import to `{ Component }` or add `export default` to the component file.
 
 ### WebSocket Not Working
 

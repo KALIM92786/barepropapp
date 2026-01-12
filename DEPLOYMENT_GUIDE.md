@@ -109,7 +109,15 @@ git push -u origin main
    VITE_API_URL=https://bareprop-backend.onrender.com
    ```
 
-3. **Deploy**
+3. **Configure Rewrites (Important for React Router)**
+   - Go to the **Redirects/Rewrites** tab in your Static Site dashboard
+   - Click "Add Rule"
+   - **Source**: `/*`
+   - **Destination**: `/index.html`
+   - **Action**: `Rewrite`
+   - Click "Save Changes"
+
+4. **Deploy**
    - Click "Create Static Site"
    - Wait for deployment to complete
    - Copy the frontend URL
@@ -235,6 +243,7 @@ Then run it after deployment via Render Shell.
 2. Ensure all dependencies are in package.json
 3. Check Node.js version compatibility
 4. Verify build commands are correct
+5. **Fix Import Errors**: If you see `"default" is not exported`, check that you are using `export default` in your component or use named imports `{ Component }`.
 
 ### WebSocket Issues
 
