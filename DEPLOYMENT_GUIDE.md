@@ -211,8 +211,9 @@ Then run it after deployment via Render Shell.
 **Solutions**:
 1. Check database is running on Render
 2. Verify DB_HOST and DB_PASSWORD are correct
-3. Ensure Render services are in the same region
-4. Check Render logs for error messages
+3. **Fix Localhost Error**: If logs show `ECONNREFUSED 127.0.0.1:5432`, it means `DB_HOST` is NOT set in Render Environment Variables. You must add it manually.
+4. Ensure Render services are in the same region
+5. Check Render logs for error messages
 
 ### CORS Issues
 
