@@ -244,6 +244,7 @@ Then run it after deployment via Render Shell.
 3. Check Node.js version compatibility
 4. Verify build commands are correct
 5. **Fix Import Errors**: If you see `"default" is not exported`, check that you are using `export default` in your component or use named imports `{ Component }`.
+6. **Fix Syntax Errors**: If you see `Expected "=>" but found ";"`, you likely copied placeholder code (like `// ... JSX ...`) literally. Replace it with valid code.
 
 ### WebSocket Issues
 

@@ -216,6 +216,11 @@ Before going to production:
 **Error**: `"default" is not exported`
 **Solution**: Add `export default ComponentName;` to the end of your component file.
 
+### Build Fails (Syntax Error)
+
+**Error**: `Expected "=>" but found ";"`
+**Solution**: Replace placeholder comments in `Dashboard.jsx` with valid JSX code.
+
 ### WebSocket Not Working
 
 **Error**: No real-time updates
