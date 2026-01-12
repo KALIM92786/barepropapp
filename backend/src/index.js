@@ -45,10 +45,10 @@ app.get('/api/analytics/:accountId', authenticateToken, async (req, res) => {
     try {
         const { accountId } = req.params;
         const result = await pool.query(`
-            SELECT timestamp, equity, balance 
-            FROM account_snapshots 
+            SELECT created_at as timestamp, equity, balance 
+            FROM equity_snapshots 
             WHERE account_id = $1 
-            ORDER BY timestamp DESC LIMIT 500
+            ORDER BY created_at DESC LIMIT 500
         `, [accountId]);
         res.json(result.rows.reverse());
     } catch (err) {
@@ -74,7 +74,7 @@ server.listen(PORT, async () => {
     console.log(`BareProp Server running on port ${PORT}`);
     // Initialize Sync
     try {
-        const { rows: accounts } = await pool.query('SELECT * FROM accounts WHERE is_active = true');
+        const { rows: accounts } = await pool.query("SELECT * FROM accounts WHERE status = 'ACTIVE'");
         if (accounts.length > 0) await syncService.init(accounts);
     } catch (err) {
         console.error("Startup Warning: Could not load accounts (Tables might be missing).", err.message);
