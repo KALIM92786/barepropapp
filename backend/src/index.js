@@ -73,6 +73,10 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, async () => {
     console.log(`BareProp Server running on port ${PORT}`);
     // Initialize Sync
-    const { rows: accounts } = await pool.query('SELECT * FROM accounts WHERE is_active = true');
-    if (accounts.length > 0) await syncService.init(accounts);
+    try {
+        const { rows: accounts } = await pool.query('SELECT * FROM accounts WHERE is_active = true');
+        if (accounts.length > 0) await syncService.init(accounts);
+    } catch (err) {
+        console.error("Startup Warning: Could not load accounts (Tables might be missing).", err.message);
+    }
 });
