@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import Dashboard from './Dashboard.jsx'
+import { Dashboard } from './Dashboard.jsx'
 import './index.css'
 
 // Hardcoded account ID for demo purposes. In production, this would come from the auth context/URL.
