@@ -1,8 +1,9 @@
 import React from 'react';
-import { useSocket } from '../context/SocketContext';
+import { useContext } from 'react';
+import { SocketContext } from '../context/SocketContext';
 
 const Account = () => {
-    const { isConnected } = useSocket();
+    const { isConnected } = useContext(SocketContext);
     
     return (
         <div className="bg-gray-800 p-8 rounded-xl border border-gray-700 max-w-2xl">

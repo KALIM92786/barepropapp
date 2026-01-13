@@ -28,7 +28,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (username, password) => {
     try {
-      // Backend expects 'username' and 'password' per README
+      // Backend expects 'username' (which maps to email in database)
       const { data } = await axios.post(`${API_URL}/api/auth/login`, {
         username,
         password,

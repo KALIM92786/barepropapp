@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { useSocket } from '../context/SocketContext';
+import { useContext } from 'react';
+import { SocketContext } from '../context/SocketContext';
 
 const History = () => {
-    const { history } = useSocket();
+    const { history } = useContext(SocketContext);
     const [filter, setFilter] = useState('');
 
     const filteredHistory = history.filter(deal => 

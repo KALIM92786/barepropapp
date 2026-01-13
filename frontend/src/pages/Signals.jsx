@@ -1,8 +1,9 @@
 import React from 'react';
-import { useSocket } from '../context/SocketContext';
+import { useContext } from 'react';
+import { SocketContext } from '../context/SocketContext';
 
 const Signals = () => {
-    const { history } = useSocket();
+    const { history } = useContext(SocketContext);
     // In a real app, this would be a separate feed of "signals" (entry points), 
     // but here we can visualize recent trades as signals.
     const recentTrades = history.slice(0, 10);

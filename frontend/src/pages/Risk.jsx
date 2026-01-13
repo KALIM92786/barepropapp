@@ -1,8 +1,9 @@
 import React from 'react';
-import { useSocket } from '../context/SocketContext';
+import { useContext } from 'react';
+import { SocketContext } from '../context/SocketContext';
 
 const Risk = () => {
-    const { liveData } = useSocket();
+    const { liveData } = useContext(SocketContext);
     const equity = liveData.equity || 1; // Avoid div by zero
     const totalExposure = liveData.openOrders.reduce((acc, order) => acc + (order.volume * 100000), 0); // Assuming standard lots
     const leverageUsed = totalExposure / equity;

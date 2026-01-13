@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 
-const BACKEND_URL = 'http://localhost:5000';
+const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export const useSocketData = () => {
     const [equity, setEquity] = useState(null);
@@ -34,7 +34,6 @@ export const useSocketData = () => {
 
         // 2. Connect WebSocket
         const socket = io(BACKEND_URL);
-
         socket.on('connect', () => {
             console.log('Connected to WebSocket');
             setIsConnected(true);

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { useSocket } from "../context/SocketContext";
+import { useContext } from "react";
+import { SocketContext } from "../context/SocketContext";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -8,13 +9,13 @@ export default function SignalsLive() {
   const [positions, setPositions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { socket } = useSocket();
+  const { socket } = useContext(SocketContext);
 
   useEffect(() => {
     // Initial fetch via REST to populate data immediately
     const fetchInitial = async () => {
       try {
-        const res = await axios.get(`${API}/api/signals/live`);
+        const res = await axios.get(`${API}/api/signals/signals/live`);
         setPositions(res.data);
         setError(null);
       } catch (e) {
@@ -34,6 +35,15 @@ export default function SignalsLive() {
     // Listen for real-time updates from the server
     socket.on("signals_update", (data) => {
       setPositions(data);
+    });
+    
+    // Listen for individual signal updates
+    socket.on("signal_open", (signal) => {
+      setPositions(prev => [...prev, signal]);
+    });
+    
+    socket.on("signal_close", (signalId) => {
+      setPositions(prev => prev.filter(p => p.id !== signalId));
     });
 
     return () => {

@@ -1,8 +1,9 @@
 import React from 'react';
-import { useSocket } from '../context/SocketContext';
+import { useContext } from 'react';
+import { SocketContext } from '../context/SocketContext';
 
 const Analytics = () => {
-    const { history } = useSocket();
+    const { history } = useContext(SocketContext);
 
     // Calculate Metrics
     const totalTrades = history.length;

@@ -9,6 +9,7 @@ const authRoutes = require('./routes/authRoutes');
 const accountRoutes = require('./routes/accountRoutes');
 const ordersRoutes = require('./routes/ordersRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 // Import Socket Handler
 const socketHandler = require('./socket/socketHandler');
@@ -43,6 +44,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/accounts', accountRoutes);
 app.use('/api/orders', ordersRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/signals', ordersRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Health Check
 app.get('/health', (req, res) => {

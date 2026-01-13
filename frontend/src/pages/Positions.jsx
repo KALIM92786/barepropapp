@@ -1,8 +1,9 @@
 import React from 'react';
-import { useSocket } from '../context/SocketContext';
+import { useContext } from 'react';
+import { SocketContext } from '../context/SocketContext';
 
 const Positions = () => {
-    const { liveData } = useSocket();
+    const { liveData } = useContext(SocketContext);
     const orders = liveData.openOrders || [];
 
     return (

@@ -9,7 +9,7 @@ export default function SignalsHistory() {
 
   useEffect(() => {
     // Auth header is injected globally by AuthContext
-    axios.get(`${API}/api/signals/history`)
+    axios.get(`${API}/api/signals/signals/history`)
       .then(r => setTrades(r.data))
       .catch(console.error)
       .finally(() => setLoading(false));

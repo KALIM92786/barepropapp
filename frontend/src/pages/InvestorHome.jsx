@@ -22,8 +22,8 @@ export default function InvestorHome() {
     async function load() {
       try {
         // Auth header is injected globally by AuthContext
-        const acc = await axios.get(`${API}/api/investor/account`);
-        const eq = await axios.get(`${API}/api/investor/equity`);
+        const acc = await axios.get(`${API}/api/accounts/investor/account`);
+        const eq = await axios.get(`${API}/api/accounts/investor/equity`);
 
         setAccount(acc.data);
         setEquity(eq.data);

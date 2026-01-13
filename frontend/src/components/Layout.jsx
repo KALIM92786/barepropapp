@@ -1,11 +1,12 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useSocket } from '../context/SocketContext';
+import { useContext } from 'react';
+import { SocketContext } from '../context/SocketContext';
 
 const Layout = ({ children, userRole }) => {
     const location = useLocation();
     const navigate = useNavigate();
-    const { isConnected, liveData } = useSocket();
+    const { isConnected, liveData } = useContext(SocketContext);
 
     const handleLogout = () => {
         localStorage.removeItem('token');
