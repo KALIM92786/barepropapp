@@ -1,65 +1,53 @@
-import React, { createContext, useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useContext } from "react";
+import { AuthContext } from "./context/AuthContext";
 
-export const AuthContext = createContext();
+import Login from "./pages/Login";
+import InvestorHome from "./pages/InvestorHome";
+import SignalsLive from "./pages/SignalsLive";
+import SignalsHistory from "./pages/SignalsHistory";
+import BottomNav from "./components/BottomNav";
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('token'));
-  const [loading, setLoading] = useState(true);
+export default function App() {
+  const { user, loading } = useContext(AuthContext);
 
-  // Base URL from environment or default to localhost
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-
-  useEffect(() => {
-    if (token) {
-      // In a real app, you'd validate the token with the backend here
-      // For now, we decode the user from the token or just assume validity if present
-      // This is a simplified version
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        setUser(payload);
-      } catch (e) {
-        console.error("Invalid token", e);
-        logout();
-      }
-    }
-    setLoading(false);
-  }, [token]);
-
-  const login = async (email, password) => {
-    try {
-      const response = await fetch(`${API_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }), // Changed username to email based on schema
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Login failed');
-      }
-
-      localStorage.setItem('token', data.token);
-      setToken(data.token);
-      setUser(data.user);
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
-  };
-
-  const logout = () => {
-    localStorage.removeItem('token');
-    setToken(null);
-    setUser(null);
-  };
+  if (loading) return <div className="p-4">Loading...</div>;
+  if (!user) return <Login />;
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, loading }}>
-      {!loading && children}
-    </AuthContext.Provider>
-  );
-};
+    <BrowserRouter>
+      <>
+        <Routes>
+          {/* Investor & Admin */}
+          {(user.role === "investor" || user.role === "admin") && (
+            <>
+              <Route path="/" element={<InvestorHome />} />
+              <Route path="/investor" element={<InvestorHome />} />
+            </>
+          )}
 
-export default AuthProvider;
+          {/* Trader & Admin */}
+          {(user.role === "trader" || user.role === "admin") && (
+            <>
+              <Route path="/signals" element={<SignalsLive />} />
+              <Route path="/signals/history" element={<SignalsHistory />} />
+            </>
+          )}
+
+          {/* Fallback */}
+          <Route
+            path="*"
+            element={
+              <Navigate
+                to={user.role === "trader" ? "/signals" : "/investor"}
+                replace
+              />
+            }
+          />
+        </Routes>
+
+        <BottomNav role={user.role} />
+      </>
+    </BrowserRouter>
+  );
+}
