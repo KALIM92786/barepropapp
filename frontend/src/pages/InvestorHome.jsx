@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-const API = import.meta.env.VITE_API_URL;
+const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export default function InvestorHome() {
   const [account, setAccount] = useState(null);
@@ -26,6 +26,7 @@ export default function InvestorHome() {
   }, []);
 
   if (loading) return <div className="p-4">Loading...</div>;
+  if (!account) return <div className="p-4 text-red-500">Unable to load account data.</div>;
 
   const profit = account.equity - account.balance;
   const profitPct = ((profit / account.balance) * 100).toFixed(2);
