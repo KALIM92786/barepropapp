@@ -1,52 +1,56 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { useContext } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
+import axios from "axios";
 
-import Login from "./pages/Login";
-import InvestorHome from "./pages/InvestorHome";
-import SignalsLive from "./pages/SignalsLive";
-import SignalsHistory from "./pages/SignalsHistory";
-import BottomNav from "./components/BottomNav";
+const AuthContext = createContext(null);
 
-export default function App() {
-  const { user, loading } = useContext(AuthContext);
+export const useAuth = () => useContext(AuthContext);
 
-  if (loading) return <div className="p-4">Loading...</div>;
-  if (!user) return <Login />;
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        // Check session status
+        const { data } = await axios.get(`${API_URL}/api/auth/status`, {
+          withCredentials: true,
+        });
+        if (data.user) {
+          setUser(data.user);
+        }
+      } catch (err) {
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, [API_URL]);
+
+  const login = async (email, password) => {
+    const { data } = await axios.post(
+      `${API_URL}/api/auth/login`,
+      { email, password },
+      { withCredentials: true }
+    );
+    setUser(data.user);
+    return data;
+  };
+
+  const logout = async () => {
+    await axios.post(`${API_URL}/api/auth/logout`, {}, { withCredentials: true });
+    setUser(null);
+  };
 
   return (
-    <BrowserRouter>
-      <>
-        <Routes>
-          {/* Investor & Admin */}
-          {(user.role === "investor" || user.role === "admin") && (
-            <>
-              <Route path="/" element={<InvestorHome />} />
-              <Route path="/investor" element={<InvestorHome />} />
-            </>
-          )}
-
-          {/* Trader & Admin */}
-          {(user.role === "trader" || user.role === "admin") && (
-            <>
-              <Route path="/signals" element={<SignalsLive />} />
-              <Route path="/signals/history" element={<SignalsHistory />} />
-            </>
-          )}
-
-          {/* Fallback */}
-          <Route
-            path="*"
-            element={
-              <Navigate
-                to={user.role === "trader" ? "/signals" : "/investor"}
-                replace
-              />
-            }
-          />
-        </Routes>
-
-        <BottomNav role={user.role} />
-      </>
-    </BrowserRouter>
+    <AuthContext.Provider value={{ user, loading, login, logout }}>
+      {children}
+    </AuthContext.Provider>
   );
-}
+};
+
+export default AuthContext;
