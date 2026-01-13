@@ -1,28 +1,45 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useSocket } from "../context/SocketContext";
 
-const API = import.meta.env.VITE_API_URL;
+const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export default function SignalsLive() {
   const [positions, setPositions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { socket } = useSocket();
 
   useEffect(() => {
-    async function load() {
+    // Initial fetch via REST to populate data immediately
+    const fetchInitial = async () => {
       try {
-        const res = await axios.get(`${API}/api/signals/live`, { withCredentials: true });
+        const res = await axios.get(`${API}/api/signals/live`);
         setPositions(res.data);
+        setError(null);
       } catch (e) {
         console.error(e);
+        setError("Failed to fetch initial signals.");
       } finally {
         setLoading(false);
       }
-    }
+    };
 
-    load();
-    const interval = setInterval(load, 5000); // refresh every 5s
-    return () => clearInterval(interval);
+    fetchInitial();
   }, []);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    // Listen for real-time updates from the server
+    socket.on("signals_update", (data) => {
+      setPositions(data);
+    });
+
+    return () => {
+      socket.off("signals_update");
+    };
+  }, [socket]);
 
   if (loading) return <div className="p-4">Loading signals…</div>;
 
@@ -30,7 +47,9 @@ export default function SignalsLive() {
     <div className="min-h-screen bg-gray-100 dark:bg-black p-4">
       <h1 className="text-xl font-bold mb-4">Live Signals</h1>
 
-      {positions.length === 0 && (
+      {error && <p className="text-red-500 mb-4">{error}</p>}
+
+      {positions.length === 0 && !error && (
         <p className="text-gray-400">No active trades</p>
       )}
 

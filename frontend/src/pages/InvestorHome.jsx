@@ -1,5 +1,15 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+} from 'recharts';
+import StatCard from '../components/StatCard';
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -46,34 +56,57 @@ export default function InvestorHome() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 gap-3 mb-4">
-        <Stat label="Balance" value={`$${account.balance.toFixed(2)}`} />
-        <Stat label="Free Margin" value={`$${account.free_margin.toFixed(2)}`} />
-        <Stat label="Margin" value={`$${account.margin.toFixed(2)}`} />
-        <Stat label="Status" value={account.status} />
+        <StatCard label="Balance" value={`$${account.balance.toFixed(2)}`} />
+        <StatCard label="Free Margin" value={`$${account.free_margin.toFixed(2)}`} />
+        <StatCard label="Margin" value={`$${account.margin.toFixed(2)}`} />
+        <StatCard label="Status" value={account.status} />
       </div>
 
-      {/* Equity chart placeholder */}
-      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-4">
-        <h3 className="font-semibold mb-2">Equity Curve</h3>
-        {equity.length === 0 && <p className="text-gray-400 text-sm">No data yet</p>}
-        {equity.length > 0 && (
-          <ul className="text-xs">
-            {equity.slice(-7).map((e, i) => (
-              <li key={i}>${e.equity} – {new Date(e.created_at).toLocaleDateString()}</li>
-            ))}
-          </ul>
+      {/* Equity chart */}
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-4 h-64">
+        <h3 className="font-semibold mb-4">Equity Curve</h3>
+        {equity.length > 0 ? (
+          <ResponsiveContainer width="100%" height="85%">
+            <AreaChart data={equity} margin={{ top: 5, right: 20, left: -10, bottom: 0 }}>
+              <defs>
+                <linearGradient id="colorEquity" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.4}/>
+                  <stop offset="95%" stopColor="#82ca9d" stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.1)" />
+              <XAxis 
+                dataKey="created_at" 
+                tickFormatter={(time) => new Date(time).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                tick={{ fontSize: 10, fill: '#9ca3af' }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis 
+                domain={['dataMin - 100', 'dataMax + 100']}
+                tickFormatter={(value) => `$${(value/1000).toFixed(0)}k`}
+                tick={{ fontSize: 10, fill: '#9ca3af' }}
+                axisLine={false}
+                tickLine={false}
+                width={40}
+              />
+              <Tooltip 
+                contentStyle={{
+                  backgroundColor: '#1f2937', // bg-gray-800
+                  border: '1px solid #374151', // border-gray-700
+                  borderRadius: '0.5rem',
+                }}
+                labelFormatter={(time) => new Date(time).toLocaleString()}
+                formatter={(value) => [`$${value.toFixed(2)}`, 'Equity']}
+              />
+              <Area type="monotone" dataKey="equity" stroke="#82ca9d" fillOpacity={1} fill="url(#colorEquity)" />
+            </AreaChart>
+          </ResponsiveContainer>
+        ) : (
+          <p className="text-gray-400 text-sm flex items-center justify-center h-full">No equity data available to display chart.</p>
         )}
       </div>
 
-    </div>
-  );
-}
-
-function Stat({ label, value }) {
-  return (
-    <div className="bg-white dark:bg-gray-900 rounded-xl p-3 shadow">
-      <p className="text-xs text-gray-500">{label}</p>
-      <p className="font-bold">{value}</p>
     </div>
   );
 }

@@ -4,6 +4,8 @@ import Login from "./pages/Login";
 import InvestorHome from "./pages/InvestorHome";
 import SignalsLive from "./pages/SignalsLive";
 import SignalsHistory from "./pages/SignalsHistory";
+import AdminSettings from "./pages/AdminSettings";
+import Notifications from "./components/Notifications";
 import BottomNav from "./components/BottomNav";
 
 export default function App() {
@@ -17,6 +19,7 @@ export default function App() {
         <Login />
       ) : (
         <>
+          <Notifications />
           <Routes>
             {/* Investor & Admin Routes */}
             {(user.role === "investor" || user.role === "admin") && (
@@ -32,6 +35,11 @@ export default function App() {
                 <Route path="/signals" element={<SignalsLive />} />
                 <Route path="/signals/history" element={<SignalsHistory />} />
               </>
+            )}
+
+            {/* Admin Only Routes */}
+            {user.role === "admin" && (
+              <Route path="/settings" element={<AdminSettings />} />
             )}
 
             {/* Fallback for unknown routes */}
