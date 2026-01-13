@@ -1,36 +1,32 @@
-import React, { useContext } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, AuthContext } from './context/AuthContext';
-import { SocketProvider } from './context/SocketContext';
-import Dashboard from './pages/Dashboard';
-import Login from './pages/Login';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Login from "./pages/Login";
+import InvestorHome from "./pages/InvestorHome";
+import SignalsLive from "./pages/SignalsLive";
+import SignalsHistory from "./pages/SignalsHistory";
+import BottomNav from "./components/BottomNav";
+import { useAuth } from "./context/AuthContext";
 
-// Protected Route Wrapper
-const ProtectedRoute = ({ children }) => {
-  const { user, loading } = useContext(AuthContext);
-  
-  if (loading) return <div className="min-h-screen bg-slate-900 flex items-center justify-center text-white">Loading...</div>;
-  
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
+export default function App() {
+  const { user } = useAuth();
 
-  return children;
-};
+  if (!user) return <Login />;
 
-function App() {
   return (
-    <AuthProvider>
-      <SocketProvider>
-        <Router>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          </Routes>
-        </Router>
-      </SocketProvider>
-    </AuthProvider>
+    <BrowserRouter>
+      <Routes>
+        {user.role === "investor" && (
+          <Route path="/*" element={<InvestorHome />} />
+        )}
+
+        {user.role === "trader" && (
+          <>
+            <Route path="/signals" element={<SignalsLive />} />
+            <Route path="/signals/history" element={<SignalsHistory />} />
+          </>
+        )}
+      </Routes>
+
+      <BottomNav role={user.role} />
+    </BrowserRouter>
   );
 }
-
-export default App;
